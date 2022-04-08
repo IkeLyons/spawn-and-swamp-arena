@@ -29,14 +29,15 @@ export function loop() {
         if (attackCreep) {
             attackCreeps.push(attackCreep);
         }
+        enemies.push(enemySpawn);
         for (var creep of attackCreeps) {
-            if (creep.attack(enemySpawn) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(enemySpawn);
-            }
-            // var enemyCreep = creep.findClosestByPath(enemies);
-            // if (creep.attack(enemyCreep) == ERR_NOT_IN_RANGE) {
-            //     creep.moveTo(enemyCreep);
+            // if (creep.attack(enemySpawn) == ERR_NOT_IN_RANGE) {
+            //     creep.moveTo(enemySpawn);
             // }
+            var enemy = creep.findClosestByPath(enemies);
+            if (creep.attack(enemy) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(enemy);
+            }
         }
     }
 }
