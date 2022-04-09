@@ -15,14 +15,15 @@ function spawn() {
         }
     } else {
         if (currentSquad.length < 2) {
-            var attackCreep = mySpawn.spawnCreep([MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK]).object;
+            var attackCreep = mySpawn.spawnCreep([MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK]).object;
             if (attackCreep) {
                 attackCreep.waitingForSquad = true;
                 currentSquad.push(attackCreep);
                 army.push(attackCreep);
             }
         } else {
-            let attackCreep = mySpawn.spawnCreep([MOVE, HEAL]).object;
+            // let attackCreep = mySpawn.spawnCreep([MOVE, HEAL]).object;
+            var attackCreep = mySpawn.spawnCreep([MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK]).object;
 
             if (attackCreep) {
                 for (var c of currentSquad) {
