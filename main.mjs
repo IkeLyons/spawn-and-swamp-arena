@@ -15,7 +15,7 @@ function spawn() {
         }
     } else {
         if (currentSquad.length < 2) {
-            var attackCreep = mySpawn.spawnCreep([MOVE, ATTACK]).object;
+            var attackCreep = mySpawn.spawnCreep([MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK]).object;
             if (attackCreep) {
                 attackCreep.waitingForSquad = true;
                 currentSquad.push(attackCreep);
@@ -47,7 +47,8 @@ export function loop() {
 
     for (var worker of workers) {
         if (worker.store.getFreeCapacity(RESOURCE_ENERGY)) {
-            var container = worker.findClosestByPath(getObjectsByPrototype(StructureContainer));
+            var nonEmptyConts = getObjectsByPrototype(StructureContainer).filter((c) => c.store[RESOURCE_ENERGY] > 0);
+            var container = worker.findClosestByPath(nonEmptyConts);
             if (worker.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 worker.moveTo(container);
             }
