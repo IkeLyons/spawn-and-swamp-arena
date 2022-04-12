@@ -14,7 +14,7 @@ var healCreepBody = [MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTAC
 
 function spawn() {
     if (workers.length < workerCount) {
-        var worker = mySpawn.spawnCreep([MOVE, WORK, CARRY]).object;
+        var worker = mySpawn.spawnCreep([MOVE, CARRY, MOVE]).object;
         if (worker) {
             workers.push(worker);
         }
