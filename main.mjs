@@ -8,11 +8,12 @@ var currentSquad = [];
 var mySpawn, enemySpawn;
 var spawnDelay = 0;
 var squadSize = 4;
+var workerCount = 3;
 var attackCreepBody = [MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK];
 var healCreepBody = [MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, HEAL];
 
 function spawn() {
-    if (workers.length < 2) {
+    if (workers.length < workerCount) {
         var worker = mySpawn.spawnCreep([MOVE, WORK, CARRY]).object;
         if (worker) {
             workers.push(worker);
@@ -21,11 +22,12 @@ function spawn() {
         var attackCreep;
         if (currentSquad.length < squadSize - 1) {
             attackCreep = mySpawn.spawnCreep(attackCreepBody).object;
+            spawnDelay = attackCreepBody.length * 3;
         } else if (currentSquad.length < squadSize) {
             attackCreep = mySpawn.spawnCreep(healCreepBody).object;
+            spawnDelay = healCreepBody.length * 3;
         }
         if (attackCreep) {
-            spawnDelay = attackCreepBody.length * 3;
             attackCreep.waitingForSquad = true;
             currentSquad.push(attackCreep);
             army.push(attackCreep);
@@ -36,6 +38,7 @@ function spawn() {
 function init() {
     mySpawn = getObjectsByPrototype(StructureSpawn).find((i) => i.my);
     enemySpawn = getObjectsByPrototype(StructureSpawn).find((i) => !i.my);
+    workers = workers.filter((creep) => creep.exists);
     army = army.filter((creep) => creep.exists);
     if (currentSquad.length >= squadSize) {
         if (spawnDelay > 0) {
@@ -75,13 +78,12 @@ export function loop() {
         if (creep.body.some((bp) => bp.type == HEAL)) {
             var myDamagedCreeps = army.filter((i) => i.hits < i.hitsMax);
             var healTarget = creep.findClosestByPath(myDamagedCreeps);
-            if (healTarget) {
+
+            if (healTarget && creep.id != healTarget.id) {
                 if (creep.heal(healTarget) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(healTarget);
                 }
-            } else {
-                var enemy = creep.findClosestByPath(enemies);
-                creep.moveTo(enemy);
+                continue;
             }
         }
         if (creep.body.some((bp) => bp.type == ATTACK)) {
