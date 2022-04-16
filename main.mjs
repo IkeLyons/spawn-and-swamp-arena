@@ -10,7 +10,7 @@ var spawnDelay = 0;
 var squadSize = 4;
 var workerCount = 3;
 var attackCreepBody = [MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK];
-var healCreepBody = [MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, HEAL];
+var healCreepBody = [MOVE, MOVE, MOVE, HEAL, HEAL];
 
 function spawn() {
     if (workers.length < workerCount) {
@@ -30,7 +30,6 @@ function spawn() {
         if (attackCreep) {
             attackCreep.waitingForSquad = true;
             currentSquad.push(attackCreep);
-            army.push(attackCreep);
         }
     }
 }
@@ -48,6 +47,8 @@ function init() {
         for (var creep of currentSquad) {
             creep.waitingForSquad = false;
         }
+
+        army = army.concat(currentSquad);
         currentSquad = [];
     }
 }
@@ -84,6 +85,9 @@ export function loop() {
                     creep.moveTo(healTarget);
                 }
                 continue;
+            } else if (!healTarget) {
+                var closestAlly = creep.findClosestByPath(army.filter((c) => c.id != creep.id));
+                creep.moveTo(closestAlly);
             }
         }
         if (creep.body.some((bp) => bp.type == ATTACK)) {
