@@ -14,7 +14,33 @@ var attackCreepBody = [MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK];
 var healCreepBody = [MOVE, MOVE, MOVE, HEAL, HEAL];
 
 function spawn() {
-  if (currentSquad.length >= squadSize) {
+  if (workers.length < workerCount) {
+    var worker = mySpawn.spawnCreep([MOVE, CARRY, MOVE]).object;
+    if (worker) {
+      workers.push(worker);
+    }
+  } else {
+    var attackCreep;
+    var typeCreated; // 0 - Attacker | 1 - Healer
+    if (currentSquad.length < squadSize - 1) {
+      attackCreep = mySpawn.spawnCreep(attackCreepBody).object;
+    } else if (currentSquad.length < squadSize) {
+      attackCreep = mySpawn.spawnCreep(healCreepBody).object;
+    }
+    if (attackCreep) {
+      attackCreep.waitingForSquad = true;
+      currentSquad.push(attackCreep);
+      if (typeCreated == 0) {
+        spawnDelay = attackCreepBody.length * 3;
+      } else if (typeCreated == 1) {
+        spawnDelay = healCreepBody.length * 3;
+      }
+    }
+  }
+}
+
+function deploySquad(forced) {
+  if (currentSquad.length >= squadSize || forced) {
     if (spawnDelay > 0) {
       spawnDelay--;
       return;
@@ -25,26 +51,6 @@ function spawn() {
 
     army = army.concat(currentSquad);
     currentSquad = [];
-  }
-
-  if (workers.length < workerCount) {
-    var worker = mySpawn.spawnCreep([MOVE, CARRY, MOVE]).object;
-    if (worker) {
-      workers.push(worker);
-    }
-  } else {
-    var attackCreep;
-    if (currentSquad.length < squadSize - 1) {
-      attackCreep = mySpawn.spawnCreep(attackCreepBody).object;
-      spawnDelay = attackCreepBody.length * 3;
-    } else if (currentSquad.length < squadSize) {
-      attackCreep = mySpawn.spawnCreep(healCreepBody).object;
-      spawnDelay = healCreepBody.length * 3;
-    }
-    if (attackCreep) {
-      attackCreep.waitingForSquad = true;
-      currentSquad.push(attackCreep);
-    }
   }
 }
 
@@ -63,11 +69,9 @@ function init() {
 
   var remainingCloseEnergy = getCloseEnergy(mySpawn, containers);
   if (remainingCloseEnergy == 0) {
-    for (var creep of currentSquad) {
-      creep.waitingForSquad = false;
-    }
-    army = army.concat(currentSquad);
-    currentSquad = [];
+    deploySquad(true);
+  } else {
+    deploySquad(false);
   }
 }
 
